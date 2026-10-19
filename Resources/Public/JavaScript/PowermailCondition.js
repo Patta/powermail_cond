@@ -103,10 +103,15 @@ class PowermailCondition {
    * Note: reportValidity() alone is not sufficient because it always returns
    * true when the form has a "novalidate" attribute (i.e. when native
    * validation is disabled via TypoScript validation.native = 0).
+   *
+   * Native validation is skipped for required powermail checkbox groups because
+   * its behaviour does not match powermail's checkbox group validation.
    */
   #hasValidationErrors() {
-    if (!this.#form.reportValidity()) {
-      return true;
+    if (!this.#hasRequiredCheckboxGroup()) {
+      if (!this.#form.reportValidity()) {
+        return true;
+      }
     }
     if (this.#form.classList.contains('powermail_form_error')) {
       return true;
@@ -281,6 +286,10 @@ class PowermailCondition {
 
   #isHtml5ValidationActivated() {
     return this.#form.getAttribute('data-validate') === 'html5';
+  };
+
+  #hasRequiredCheckboxGroup() {
+    return this.#form.querySelector('input[type="checkbox"][required][data-powermail-multiple="checkbox"]') !== null;
   };
 
   #getWrappingContainerByMarkerName(fieldMarker) {
